@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Piloter l'activité et la communication en production – MindCo2</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Poppins',sans-serif;color:#3a3a3a;background:#fff;line-height:1.7}
+  :root{--red:#C7353A;--dark:#5A5A5A;--light:#EDEDED;--white:#fff}
+
+  /* ─── HEADER ─────────────────────────────── */
+  header{background:var(--white);padding:1.2rem 2rem;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--red);position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+  header img{height:52px;object-fit:contain}
+  header nav a{color:var(--dark);text-decoration:none;margin-left:1.5rem;font-size:.85rem;font-weight:600;transition:color .2s}
+  header nav a:hover{color:var(--red)}
+
+  /* ─── HERO ───────────────────────────────── */
+  .hero{display:grid;grid-template-columns:1fr 1fr;min-height:88vh;background:linear-gradient(135deg,#1a1a2e 0%,#2d2d44 60%,#3a1a1d 100%);position:relative;overflow:hidden}
+  .hero::before{content:'';position:absolute;top:-80px;right:-80px;width:500px;height:500px;background:radial-gradient(circle,rgba(199,53,58,.25) 0%,transparent 70%);pointer-events:none}
+  .hero-text{display:flex;flex-direction:column;justify-content:center;padding:5rem 4rem 5rem 6rem;z-index:1}
+  .hero-label{display:inline-block;background:var(--red);color:#fff;font-size:.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:.35rem 1rem;border-radius:2px;margin-bottom:1.5rem;width:fit-content}
+  .hero-title{font-size:clamp(2rem,3.5vw,3rem);font-weight:800;color:#fff;line-height:1.15;margin-bottom:1rem}
+  .hero-title span{color:var(--red)}
+  .hero-subtitle{font-size:1rem;color:#c8c8d8;margin-bottom:2rem;max-width:480px}
+  .hero-ctas{display:flex;gap:1rem;flex-wrap:wrap}
+  .btn{display:inline-block;padding:.8rem 1.8rem;font-family:'Poppins',sans-serif;font-weight:700;font-size:.9rem;border-radius:4px;text-decoration:none;cursor:pointer;transition:transform .15s,box-shadow .15s,background .2s}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.2)}
+  .btn-red{background:var(--red);color:#fff;border:none}
+  .btn-red:hover{background:#a82c31}
+  .btn-outline{background:transparent;color:#fff;border:2px solid rgba(255,255,255,.5)}
+  .btn-outline:hover{border-color:#fff;background:rgba(255,255,255,.08)}
+  .hero-stats{display:flex;gap:2.5rem;margin-top:3rem;padding-top:2rem;border-top:1px solid rgba(255,255,255,.12)}
+  .stat-num{display:block;font-size:1.9rem;font-weight:800;color:var(--red)}
+  .stat-label{font-size:.78rem;color:#aaa;text-transform:uppercase;letter-spacing:1px}
+  .hero-visual{position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .hero-bg-text{position:absolute;font-size:clamp(6rem,12vw,11rem);font-weight:800;color:rgba(255,255,255,.03);line-height:1;user-select:none;text-align:center}
+  .hero-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:2.5rem;backdrop-filter:blur(10px);max-width:340px;z-index:1}
+  .hero-card-icon{width:56px;height:56px;background:var(--red);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:1.2rem}
+  .hero-card h3{color:#fff;font-size:1rem;font-weight:700;margin-bottom:.8rem}
+  .hero-card ul{list-style:none;padding:0}
+  .hero-card ul li{color:#c0c0d0;font-size:.85rem;padding:.3rem 0;padding-left:1.2rem;position:relative}
+  .hero-card ul li::before{content:'→';position:absolute;left:0;color:var(--red)}
+
+  /* ─── SECTIONS ───────────────────────────── */
+  section{padding:5rem 2rem}
+  .container{max-width:1100px;margin:0 auto}
+  .section-tag{font-size:.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--red);margin-bottom:.6rem}
+  .section-title{font-size:clamp(1.6rem,3vw,2.2rem);font-weight:800;color:#1a1a1a;margin-bottom:1rem}
+  .section-title span{color:var(--red)}
+  .section-intro{color:var(--dark);max-width:660px;margin-bottom:3rem;font-size:.98rem}
+
+  /* ─── OBJECTIFS ──────────────────────────── */
+  .objectifs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem}
+  .obj-card{background:var(--light);border-radius:12px;padding:1.8rem;border-left:4px solid var(--red);transition:box-shadow .2s}
+  .obj-card:hover{box-shadow:0 6px 24px rgba(0,0,0,.1)}
+  .obj-num{font-size:2.2rem;font-weight:800;color:rgba(199,53,58,.15);line-height:1}
+  .obj-card p{font-size:.9rem;color:var(--dark);margin-top:.5rem}
+
+  /* ─── PROGRAMME ACCORDÉON ────────────────── */
+  .accordion{border:1px solid #e0e0e0;border-radius:12px;overflow:hidden;margin-bottom:1rem}
+  .acc-header{display:flex;justify-content:space-between;align-items:center;padding:1.2rem 1.6rem;background:#fff;cursor:pointer;user-select:none;transition:background .2s}
+  .acc-header:hover{background:#fef5f5}
+  .acc-header.open{background:#1a1a2e}
+  .acc-header.open .acc-title,.acc-header.open .acc-num{color:#fff}
+  .acc-header.open .acc-icon{color:var(--red);transform:rotate(45deg)}
+  .acc-left{display:flex;align-items:center;gap:1rem}
+  .acc-num{font-size:.8rem;font-weight:700;color:var(--red);background:rgba(199,53,58,.1);padding:.2rem .7rem;border-radius:20px;white-space:nowrap}
+  .acc-title{font-weight:700;font-size:.95rem;color:#1a1a2e}
+  .acc-icon{font-size:1.4rem;color:#aaa;transition:transform .3s,color .2s;line-height:1}
+  .acc-body{display:none;padding:1.5rem 1.6rem;background:#fafafa;border-top:1px solid #efefef}
+  .acc-body.open{display:block}
+  .acc-body ul{list-style:none;padding:0}
+  .acc-body ul li{padding:.4rem 0;font-size:.9rem;color:var(--dark);padding-left:1.4rem;position:relative;border-bottom:1px solid #f0f0f0}
+  .acc-body ul li:last-child{border-bottom:none}
+  .acc-body ul li::before{content:'▸';position:absolute;left:0;color:var(--red)}
+  .acc-meta{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;padding-top:1rem;border-top:1px solid #e8e8e8}
+  .acc-badge{font-size:.75rem;font-weight:600;padding:.25rem .8rem;border-radius:20px;background:rgba(199,53,58,.1);color:var(--red)}
+
+  /* ─── FORMAT & DURÉE ─────────────────────── */
+  .format-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.5rem}
+  .format-card{text-align:center;padding:2.5rem 1.5rem;border-radius:16px;background:var(--light);transition:transform .2s}
+  .format-card:hover{transform:translateY(-4px)}
+  .format-icon{font-size:2.5rem;margin-bottom:1rem}
+  .format-card h3{font-size:1rem;font-weight:700;color:#1a1a2e;margin-bottom:.4rem}
+  .format-card p{font-size:.85rem;color:var(--dark)}
+  .format-total{background:#1a1a2e;color:#fff;border-radius:16px;padding:2.5rem;text-align:center;grid-column:span 1}
+  .format-total .big{font-size:3.5rem;font-weight:800;color:var(--red);line-height:1}
+  .format-total p{color:#c0c0d0;font-size:.9rem;margin-top:.5rem}
+
+  /* ─── VIDÉO ──────────────────────────────── */
+  .video-section{background:#1a1a2e}
+  .video-section .section-title{color:#fff}
+  .video-section .section-tag{color:var(--red)}
+  .video-section .section-intro{color:#c0c0d0}
+  .video-wrap{position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+  .video-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none}
+
+  /* ─── INTERVENANTE ───────────────────────── */
+  .intervenante-grid{display:grid;grid-template-columns:1fr 2fr;gap:4rem;align-items:center}
+  .intervenante-photo{background:linear-gradient(135deg,#1a1a2e,#3a1a1d);border-radius:16px;aspect-ratio:4/5;display:flex;align-items:center;justify-content:center;font-size:5rem;color:rgba(199,53,58,.3)}
+  .intervenante-name{font-size:1.6rem;font-weight:800;color:#1a1a2e;margin-bottom:.3rem}
+  .intervenante-role{color:var(--red);font-weight:600;margin-bottom:1.2rem;font-size:.95rem}
+  .intervenante-bio{color:var(--dark);font-size:.93rem;margin-bottom:1.5rem}
+  .contact-list{list-style:none;padding:0}
+  .contact-list li{font-size:.9rem;color:var(--dark);padding:.4rem 0;display:flex;align-items:center;gap:.7rem}
+  .contact-list a{color:var(--red);text-decoration:none;font-weight:600}
+  .contact-list a:hover{text-decoration:underline}
+
+  /* ─── CARTE ──────────────────────────────── */
+  .map-section{background:var(--light)}
+  .map-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:start}
+  .map-info h3{font-size:1.2rem;font-weight:700;margin-bottom:1rem}
+  .info-item{display:flex;gap:.8rem;margin-bottom:1rem;align-items:flex-start}
+  .info-icon{font-size:1.2rem;flex-shrink:0;margin-top:.1rem}
+  .info-text strong{display:block;font-size:.85rem;color:#1a1a2e;font-weight:700}
+  .info-text span{font-size:.85rem;color:var(--dark)}
+  .map-embed{border-radius:16px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.12);border:1px solid #e0e0e0}
+  .map-embed iframe{display:block}
+
+  /* ─── TÉLÉCHARGEMENTS ────────────────────── */
+  .dl-grid{display:flex;gap:1.5rem;flex-wrap:wrap}
+  .dl-card{display:flex;align-items:center;gap:1.2rem;padding:1.5rem 2rem;background:var(--light);border-radius:12px;text-decoration:none;border:2px solid transparent;transition:border-color .2s,box-shadow .2s;flex:1;min-width:280px}
+  .dl-card:hover{border-color:var(--red);box-shadow:0 4px 20px rgba(199,53,58,.15)}
+  .dl-icon{width:48px;height:48px;background:var(--red);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0}
+  .dl-card h4{font-size:.95rem;font-weight:700;color:#1a1a2e;margin-bottom:.2rem}
+  .dl-card p{font-size:.8rem;color:var(--dark)}
+
+  /* ─── INFOS PRATIQUES ────────────────────── */
+  .pratiques{background:#1a1a2e}
+  .pratiques .section-title{color:#fff}
+  .pratiques .section-tag{color:var(--red)}
+  .pratiques-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.5rem}
+  .prat-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:1.8rem}
+  .prat-card .prat-icon{font-size:2rem;margin-bottom:.8rem}
+  .prat-card h4{color:#fff;font-weight:700;font-size:.95rem;margin-bottom:.4rem}
+  .prat-card p{color:#b0b0c0;font-size:.85rem}
+
+  /* ─── FOOTER ─────────────────────────────── */
+  footer{background:#0d0d1a;color:#888;padding:2.5rem 2rem}
+  .footer-inner{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:gap;gap:1rem}
+  .footer-brand{color:#fff;font-weight:700;font-size:1rem}
+  .footer-brand span{color:var(--red)}
+  .footer-links{display:flex;gap:1.5rem;flex-wrap:wrap}
+  .footer-links a{color:#888;text-decoration:none;font-size:.82rem;transition:color .2s}
+  .footer-links a:hover{color:var(--red)}
+  .footer-copy{font-size:.78rem;margin-top:1rem;text-align:center;color:#555}
+
+  /* ─── RESPONSIVE ─────────────────────────── */
+  @media(max-width:900px){
+    .hero{grid-template-columns:1fr}.hero-visual{display:none}
+    .hero-text{padding:4rem 2rem}
+    .intervenante-grid{grid-template-columns:1fr}.intervenante-photo{display:none}
+    .map-grid{grid-template-columns:1fr}
+  }
+  @media(max-width:600px){
+    header nav{display:none}
+    .hero-stats{flex-wrap:wrap;gap:1.5rem}
+    .footer-inner{flex-direction:column;text-align:center}
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════ HEADER ══════════════════════════════ -->
+<header>
+  <img src="logo.png" alt="MindCo2 – Conseil Coaching Formation">
+  <nav>
+    <a href="#objectifs">Objectifs</a>
+    <a href="#programme">Programme</a>
+    <a href="#video">Vidéo</a>
+    <a href="#lieu">Lieu</a>
+    <a href="#telechargements">Documents</a>
+    <a href="#contact">Contact</a>
+  </nav>
+</header>
+
+<!-- ═══════════════════════════ HERO ════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-text">
+    <span class="hero-label">Formation · Management industriel</span>
+    <h1 class="hero-title">Piloter l'activité<br>et la <span>communication</span><br>en production</h1>
+    <p class="hero-subtitle">Un accompagnement individuel intensif pour développer votre posture managériale, structurer vos consignes et réguler votre équipe au quotidien.</p>
+    <div class="hero-ctas">
+      <a href="#programme" class="btn btn-red">Voir le programme</a>
+      <a href="programme.pdf" download class="btn btn-outline">Télécharger le PDF</a>
+    </div>
+    <div class="hero-stats">
+      <div><span class="stat-num">21 h</span><span class="stat-label">de formation</span></div>
+      <div><span class="stat-num">7</span><span class="stat-label">compétences</span></div>
+      <div><span class="stat-num">1</span><span class="stat-label">participant·e</span></div>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="hero-bg-text">PILOTAGE<br>PRODUCTION</div>
+    <div class="hero-card">
+      <div class="hero-card-icon">🎯</div>
+      <h3>Résultats attendus</h3>
+      <ul>
+        <li>Analyser votre pratique managériale</li>
+        <li>Identifier vos automatismes sous tension</li>
+        <li>Structurer des consignes claires</li>
+        <li>Réguler sans sur-contrôler</li>
+        <li>Ancrer un plan d'action 30 jours</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ OBJECTIFS ═══════════════════════════ -->
+<section id="objectifs">
+  <div class="container">
+    <p class="section-tag">Objectifs pédagogiques</p>
+    <h2 class="section-title">Ce que vous serez capable de <span>faire</span></h2>
+    <p class="section-intro">À l'issue de cet accompagnement de 21 heures, vous aurez développé des pratiques managériales concrètes, directement applicables en atelier de production.</p>
+    <div class="objectifs-grid">
+      <div class="obj-card"><div class="obj-num">01</div><p><strong>Analyser</strong> une situation managériale vécue en distinguant faits, intentions et effets produits sur l'équipe.</p></div>
+      <div class="obj-card"><div class="obj-num">02</div><p><strong>Identifier</strong> vos automatismes de communication en situation de tension et définir une alternative opérationnelle.</p></div>
+      <div class="obj-card"><div class="obj-num">03</div><p><strong>Structurer</strong> et transmettre des consignes claires, et vérifier leur bonne compréhension.</p></div>
+      <div class="obj-card"><div class="obj-num">04</div><p><strong>Clarifier</strong> l'interface animatrice / chefs de ligne et sécuriser les interactions au quotidien.</p></div>
+      <div class="obj-card"><div class="obj-num">05</div><p><strong>Reconnaître</strong> les situations managériales à risque et agir avec méthode et discernement.</p></div>
+      <div class="obj-card"><div class="obj-num">06</div><p><strong>Réguler</strong> l'activité de l'équipe sans sur-contrôle, grâce à des routines d'arbitrage simples.</p></div>
+      <div class="obj-card"><div class="obj-num">07</div><p><strong>Formaliser</strong> un retour réflexif structuré et ancrer un plan d'action à 30 jours.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ FORMAT ══════════════════════════════ -->
+<section style="background:var(--light)">
+  <div class="container">
+    <p class="section-tag">Format & durée</p>
+    <h2 class="section-title">Un dispositif <span>blended</span> sur mesure</h2>
+    <div class="format-grid">
+      <div class="format-card">
+        <div class="format-icon">🏭</div>
+        <h3>4 demi-journées</h3>
+        <p>Présentiel intensif de 3h30 chacune, en situation réelle</p>
+      </div>
+      <div class="format-card">
+        <div class="format-icon">💻</div>
+        <h3>2 coaching flash</h3>
+        <p>Sessions distancielles de 1h30 pour ancrer les acquis terrain</p>
+      </div>
+      <div class="format-card">
+        <div class="format-icon">📱</div>
+        <h3>8 micro-learnings</h3>
+        <p>Capsules asynchrones de 30 min, accessibles sur mobile</p>
+      </div>
+      <div class="format-total">
+        <div class="big">21 h</div>
+        <p>de formation au total<br>Certifié Qualiopi</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ PROGRAMME ═══════════════════════════ -->
+<section id="programme">
+  <div class="container">
+    <p class="section-tag">Contenu de la formation</p>
+    <h2 class="section-title">Programme <span>détaillé</span></h2>
+    <p class="section-intro">7 compétences travaillées en profondeur, avec des méthodes pédagogiques inclusives et des mises en situation ancrées dans votre réalité.</p>
+
+    <div class="accordion">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <div class="acc-left"><span class="acc-num">C1</span><span class="acc-title">Analyser sa pratique managériale en situation réelle</span></div>
+        <span class="acc-icon">+</span>
+      </div>
+      <div class="acc-body">
+        <ul>
+          <li>Différencier faits observables, intentions supposées et effets produits sur l'équipe</li>
+          <li>Lecture d'une situation managériale vécue en atelier (brief, consigne, tension, arbitrage)</li>
+          <li>Grille simple d'analyse de pratique adaptée au contexte industriel</li>
+          <li>Mise en lien entre posture managériale, décisions prises et réactions de l'équipe</li>
+          <li>Formalisation d'enseignements opérationnels directement transposables</li>
+        </ul>
+        <div class="acc-meta"><span class="acc-badge">Coaching individuel</span><span class="acc-badge">Réflexif – Palier 5</span></div>
+      </div>
+    </div>
+
+    <div class="accordion">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <div class="acc-left"><span class="acc-num">C2</span><span class="acc-title">Identifier ses automatismes de communication en tension</span></div>
+        <span class="acc-icon">+</span>
+      </div>
+      <div class="acc-body">
+        <ul>
+          <li>Identification des réflexes de communication sous pression (mots, ton, posture, timing)</li>
+          <li>Effets des automatismes sur la compréhension et la coopération des équipes</li>
+          <li>Repérage des écarts entre intention managériale et perception terrain</li>
+          <li>Alternatives simples pour ajuster sa communication en atelier</li>
+          <li>Découverte de son profil Lumina Spark (outil de développement professionnel)</li>
+        </ul>
+        <div class="acc-meta"><span class="acc-badge">Présentiel</span><span class="acc-badge">Communicationnel – Paliers 4-5</span></div>
+      </div>
+    </div>
+
+    <div class="accordion">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <div class="acc-left"><span class="acc-num">C3</span><span class="acc-title">Structurer et transmettre des consignes claires</span></div>
+        <span class="acc-icon">+</span>
+      </div>
+      <div class="acc-body">
+        <ul>
+          <li>Principes clés d'une consigne claire et opérationnelle en contexte atelier</li>
+          <li>Modèle de consigne courte : objectif, attendu, point de vigilance, contrôle</li>
+          <li>Techniques de vérification de compréhension sans mise en difficulté des équipes</li>
+          <li>Adaptation selon les profils, le contexte et l'urgence</li>
+          <li>Construction de scripts de consignes réutilisables</li>
+        </ul>
+        <div class="acc-meta"><span class="acc-badge">Micro-learning</span><span class="acc-badge">Communicationnel – Palier 4</span></div>
+      </div>
+    </div>
+
+    <div class="accordion">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <div class="acc-left"><span class="acc-num">C4</span><span class="acc-title">Clarifier l'interface animatrice / chefs de ligne</span></div>
+        <span class="acc-icon">+</span>
+      </div>
+      <div class="acc-body">
+        <ul>
+          <li>Clarification des rôles, responsabilités et zones de décision respectives</li>
+          <li>Analyse des zones de flou et de friction dans la coordination quotidienne</li>
+          <li>Règles de fonctionnement et de relais d'information réalistes</li>
+          <li>Ajustement de la posture dans son rôle d'interface</li>
+          <li>Messages clairs pour sécuriser les interactions transverses</li>
+        </ul>
+        <div class="acc-meta"><span class="acc-badge">Présentiel</span><span class="acc-badge">Organisationnel – Palier 4</span></div>
+      </div>
+    </div>
+
+    <div class="accordion">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <div class="acc-left"><span class="acc-num">C5</span><span class="acc-title">Reconnaître les situations à risque et agir avec discernement</span></div>
+        <span class="acc-icon">+</span>
+      </div>
+      <div class="acc-body">
+        <ul>
+          <li>Identification des situations à risque (humaines, organisationnelles, relationnelles)</li>
+          <li>Repérage des signaux faibles et indicateurs d'alerte</li>
+          <li>Priorisation : quoi traiter maintenant, différer, ou escalader</li>
+          <li>Actions managériales proportionnées au contexte</li>
+          <li>Prévention des escalades et tensions répétitives</li>
+        </ul>
+        <div class="acc-meta"><span class="acc-badge">Micro-learning</span><span class="acc-badge">Organisationnel – Paliers 4-5</span></div>
+      </div>
+    </div>
+
+    <div class="accordion">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <div class="acc-left"><span class="acc-num">C6</span><span class="acc-title">Réguler l'activité de l'équipe au quotidien</span></div>
+        <span class="acc-icon">+</span>
+      </div>
+      <div class="acc-body">
+        <ul>
+          <li>Principes de régulation sans surcontrôle</li>
+          <li>Routines d'arbitrage simples et efficaces</li>
+          <li>Ajustement de l'activité face aux aléas humains et techniques</li>
+          <li>Scénarios courts de régulation (brief, recadrage, réajustement)</li>
+          <li>Posture de pilotage réaliste et soutenable</li>
+        </ul>
+        <div class="acc-meta"><span class="acc-badge">Présentiel + Terrain</span><span class="acc-badge">Organisationnel – Palier 4</span></div>
+      </div>
+    </div>
+
+    <div class="accordion">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <div class="acc-left"><span class="acc-num">C7</span><span class="acc-title">Formaliser un retour réflexif et ancrer un plan d'action 30 jours</span></div>
+        <span class="acc-icon">+</span>
+      </div>
+      <div class="acc-body">
+        <ul>
+          <li>Structuration d'un retour réflexif à partir de situations vécues</li>
+          <li>Capitalisation des apprentissages issus de l'expérience terrain</li>
+          <li>Plan d'action à 30 jours : 3 actions, 3 indicateurs, 2 modalités de suivi</li>
+          <li>Petits pas et indicateurs simples de suivi</li>
+          <li>Installation de routines managériales durables (AFEST légère)</li>
+        </ul>
+        <div class="acc-meta"><span class="acc-badge">AFEST / Débrief</span><span class="acc-badge">Réflexif – Palier 5</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ VIDÉO ════════════════════════════════ -->
+<section id="video" class="video-section">
+  <div class="container">
+    <p class="section-tag">Mot de la formatrice</p>
+    <h2 class="section-title" style="color:#fff">Françoise Calmels vous <span>présente</span> la formation</h2>
+    <p class="section-intro">Découvrez la philosophie pédagogique et l'approche terrain de MindCo2 en vidéo.</p>
+    <div class="video-wrap">
+      <iframe src="https://www.youtube.com/embed/s8mCRoPkIHA" title="Présentation formation MindCo2" allowfullscreen loading="lazy"></iframe>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ INTERVENANTE ═════════════════════════ -->
+<section id="contact">
+  <div class="container">
+    <p class="section-tag">Votre formatrice</p>
+    <h2 class="section-title">Françoise <span>Calmels</span></h2>
+    <div class="intervenante-grid">
+      <div class="intervenante-photo">👩‍💼</div>
+      <div>
+        <div class="intervenante-name">Françoise Calmels</div>
+        <div class="intervenante-role">Présidente de MindCo2 · Conseil – Coaching – Formation</div>
+        <p class="intervenante-bio">Consultante en management des équipes et des organisations, experte en ingénierie de formation, Françoise accompagne des professionnels en individuel comme des collectifs de travail. Elle combine accompagnement opérationnel, analyse de pratiques et dispositifs de formation innovants, en maîtrisant notamment le Backward Design, l'Accelerated Learning et les pédagogies inclusives.</p>
+        <ul class="contact-list">
+          <li>📧 <a href="mailto:francoise.calmels@mindco2.fr">francoise.calmels@mindco2.fr</a></li>
+          <li>📞 <a href="tel:+33688620329">06 88 62 03 29</a></li>
+          <li>🌐 <a href="https://mindco2.fr" target="_blank" rel="noopener">www.mindco2.fr</a></li>
+          <li>🔗 <a href="https://www.linkedin.com/in/francoise-calmelsmindco2/" target="_blank" rel="noopener">LinkedIn</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ LIEU & CARTE ═════════════════════════ -->
+<section id="lieu" class="map-section">
+  <div class="container">
+    <p class="section-tag">Lieu de la formation</p>
+    <h2 class="section-title">Où se <span>déroule</span> la formation ?</h2>
+    <div class="map-grid">
+      <div class="map-info">
+        <h3>Informations pratiques</h3>
+        <div class="info-item">
+          <span class="info-icon">📅</span>
+          <div class="info-text"><strong>Date</strong><span>23 février 2026</span></div>
+        </div>
+        <div class="info-item">
+          <span class="info-icon">📍</span>
+          <div class="info-text"><strong>Lieu</strong><span>Café Fresnel<br>3ter avenue des Villages<br>44470 Carquefou</span></div>
+        </div>
+        <div class="info-item">
+          <span class="info-icon">🕘</span>
+          <div class="info-text"><strong>Horaires</strong><span>9h00 – 12h30 (présentiel)<br>Coaching flash : 14h00 – 15h30</span></div>
+        </div>
+        <div class="info-item">
+          <span class="info-icon">♿</span>
+          <div class="info-text"><strong>Accessibilité</strong><span>Formation adaptée PMR · Supports inclusifs<br>Référent handicap : <a href="mailto:laurent.girard@mindco2.fr" style="color:var(--red)">Laurent Girard</a></span></div>
+        </div>
+      </div>
+      <div class="map-embed">
+        <iframe src="https://www.openstreetmap.org/export/embed.html?bbox=-1.5100%2C47.2850%2C-1.4750%2C47.3100&layer=mapnik&marker=47.2967%2C-1.4926" width="100%" height="380" loading="lazy" title="Carte du lieu de formation" style="border:none"></iframe>
+        <div style="text-align:right;padding:.4rem .8rem;background:#fff;font-size:.75rem">
+          <a href="https://www.openstreetmap.org/?mlat=47.2967&mlon=-1.4926#map=15/47.2967/-1.4926" target="_blank" rel="noopener" style="color:var(--red)">Voir en plein écran →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ TÉLÉCHARGEMENTS ══════════════════════ -->
+<section id="telechargements">
+  <div class="container">
+    <p class="section-tag">Documents</p>
+    <h2 class="section-title">Télécharger les <span>ressources</span></h2>
+    <p class="section-intro">Retrouvez ci-dessous le programme complet de la formation au format PDF.</p>
+    <div class="dl-grid">
+      <a href="programme.pdf" download class="dl-card">
+        <div class="dl-icon">📄</div>
+        <div>
+          <h4>Programme de formation</h4>
+          <p>Piloter l'activité et la communication en production · PDF</p>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ INFOS PRATIQUES ══════════════════════ -->
+<section class="pratiques">
+  <div class="container">
+    <p class="section-tag">Prérequis & informations</p>
+    <h2 class="section-title" style="color:#fff">Tout ce qu'il faut <span>savoir</span></h2>
+    <div class="pratiques-grid">
+      <div class="prat-card"><div class="prat-icon">👤</div><h4>Public concerné</h4><p>Animatrice / animateur de production, responsable d'équipes de fabrication en industrie</p></div>
+      <div class="prat-card"><div class="prat-icon">✅</div><h4>Prérequis</h4><p>Exercer une fonction d'animation en atelier · Avoir au moins une situation managériale réelle à analyser</p></div>
+      <div class="prat-card"><div class="prat-icon">📱</div><h4>Matériel</h4><p>Smartphone ou ordinateur requis pour les modules micro-learning asynchrones</p></div>
+      <div class="prat-card"><div class="prat-icon">🏆</div><h4>Évaluation</h4><p>Évaluation formative continue · Plan d'action 30 jours · Certificat de réalisation</p></div>
+      <div class="prat-card"><div class="prat-icon">🛡️</div><h4>Qualiopi</h4><p>Formation conforme au référentiel Qualiopi · Indicateurs 4, 5, 6, 9 et 26 respectés</p></div>
+      <div class="prat-card"><div class="prat-icon">💬</div><h4>Support technique</h4><p>Fiche d'accès Zoom remise à l'inscription · Assistance par email sous 24h</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ FOOTER ══════════════════════════════ -->
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand">Mind<span>Co2</span> · Conseil – Coaching – Formation</div>
+      <div style="font-size:.78rem;margin-top:.3rem">S.A.S. MindCo2 · 47 Place Alphonse Fiquet – CS 30047 · 80011 Amiens cedex · SIRET 891 241 671 00041</div>
+    </div>
+    <div class="footer-links">
+      <a href="https://mindco2.fr" target="_blank" rel="noopener">mindco2.fr</a>
+      <a href="https://mindco2.fr/formulaire-contact-mindco2/" target="_blank" rel="noopener">Politique d'inclusion & handicap</a>
+      <a href="mailto:francoise.calmels@mindco2.fr">Contact</a>
+    </div>
+  </div>
+  <div class="footer-copy">© 2026 MindCo2 · Tous droits réservés · N° de déclaration d'activité auprès du Préfet de région Hauts-de-France : 32800223180</div>
+</footer>
+
+<script>
+function toggleAcc(header){
+  const body=header.nextElementSibling;
+  const isOpen=header.classList.contains('open');
+  document.querySelectorAll('.acc-header.open').forEach(h=>{
+    h.classList.remove('open');
+    h.nextElementSibling.classList.remove('open');
+    h.querySelector('.acc-icon').textContent='+';
+  });
+  if(!isOpen){
+    header.classList.add('open');
+    body.classList.add('open');
+    header.querySelector('.acc-icon').textContent='×';
+  }
+}
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    e.preventDefault();
+    document.querySelector(a.getAttribute('href'))?.scrollIntoView({behavior:'smooth'});
+  });
+});
+</script>
+</body>
+</html>
