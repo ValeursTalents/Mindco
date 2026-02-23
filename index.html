@@ -116,8 +116,8 @@
   .info-icon{font-size:1.2rem;flex-shrink:0;margin-top:.1rem}
   .info-text strong{display:block;font-size:.85rem;color:#1a1a2e;font-weight:700}
   .info-text span{font-size:.85rem;color:var(--dark)}
-  .map-embed{border-radius:16px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.12)}
-  .map-embed iframe{display:block;border:none}
+  .map-embed{border-radius:16px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.12);border:1px solid #e0e0e0}
+  .map-embed iframe{display:block}
 
   /* ─── TÉLÉCHARGEMENTS ────────────────────── */
   .dl-grid{display:flex;gap:1.5rem;flex-wrap:wrap}
@@ -443,7 +443,10 @@
         </div>
       </div>
       <div class="map-embed">
-        <iframe src="https://www.google.com/maps/embed/v1/place?key=AIzaSyD-9tSrke72PouQMnMX-a7eZSW0jkFMBWY&q=3+avenue+des+villages+44470+Carquefou+France" width="100%" height="380" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Carte du lieu de formation"></iframe>
+        <iframe src="https://www.openstreetmap.org/export/embed.html?bbox=-1.5100%2C47.2850%2C-1.4750%2C47.3100&layer=mapnik&marker=47.2967%2C-1.4926" width="100%" height="380" loading="lazy" title="Carte du lieu de formation" style="border:none"></iframe>
+        <div style="text-align:right;padding:.4rem .8rem;background:#fff;font-size:.75rem">
+          <a href="https://www.openstreetmap.org/?mlat=47.2967&mlon=-1.4926#map=15/47.2967/-1.4926" target="_blank" rel="noopener" style="color:var(--red)">Voir en plein écran →</a>
+        </div>
       </div>
     </div>
   </div>
